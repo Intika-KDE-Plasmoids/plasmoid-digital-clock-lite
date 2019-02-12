@@ -2,6 +2,3 @@
 org.kde.plasma.digitalclocklite
 
 Fork from org.kde.plasma.digitalclock, with a feature to choose the size of the clock
-
-Install :
-sudo ./install.sh
