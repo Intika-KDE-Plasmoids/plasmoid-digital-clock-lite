@@ -26,10 +26,6 @@
       <label>Font family. e.g "arial". The system font is used if this is not set.</label>
       <default></default>
     </entry>
-    <entry name="fontSize" type="string">
-      <label>Font size of the applet</label>
-      <default></default>
-    </entry>
     <entry name="boldText" type="Bool">
       <label>Sets the font to bold.</label>
       <default>false</default>
@@ -72,6 +68,10 @@
     <entry name="pin" type="Bool">
       <label>Whether the popup should remain open when another window is activated</label>
       <default>false</default>
+    </entry>
+    <entry name="checkUpdateStartup" type="Bool">
+      <label>Notify for update on startup</label>
+      <default>true</default>
     </entry>
   </group>
 </kcfg>

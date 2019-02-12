@@ -28,6 +28,12 @@ import org.kde.plasma.calendar 2.0 as PlasmaCalendar
 
 Item {
     id: root
+    
+    // Updater 1/3 ==================================================================================================================================
+    property string updateResponse;
+    property string currentVersion: '5.5';
+    property bool checkUpdateStartup: Plasmoid.configuration.checkUpdateStartup
+    // ==============================================================================================================================================
 
     width: units.gridUnit * 10
     height: units.gridUnit * 4
@@ -97,6 +103,59 @@ Item {
     function action_formatskcm() {
         KCMShell.open("formats");
     }
+    
+    // Updater 2/3 ==================================================================================================================================
+    
+    PlasmaCore.DataSource {
+        id: executableNotification
+        engine: "executable"
+        onNewData: disconnectSource(sourceName) // cmd finished
+        function exec(cmd) {
+            connectSource(cmd)
+        }
+    }
+    
+    Timer {
+        id:timerStartUpdater
+        interval: 300000
+        onTriggered: updaterNotification(false)
+    }
+
+    function availableUpdate() {
+        var notificationCommand = "notify-send --icon=clock 'Plasmoid Digital Clock Lite' 'An update is available \n<a href=\"https://www.opendesktop.org/p/1225135/\">Update link</a>' -t 30000";
+        executableNotification.exec(notificationCommand);
+    }
+
+    function noAvailableUpdate() {
+        var notificationCommand = "notify-send --icon=clock 'Plasmoid Digital Clock Lite' 'Your current version is up to date' -t 30000";
+        executableNotification.exec(notificationCommand);
+    }
+    
+    function updaterNotification(notifyUpdated) {
+        var xhr = new XMLHttpRequest;
+        xhr.responseType = 'text';
+        xhr.open("GET", "https://raw.githubusercontent.com/Intika-Linux-Plasmoid/plasmoid-digital-clock-lite/master/version");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                updateResponse = xhr.responseText;
+                console.log('.'+updateResponse+'.');
+                console.log('.'+currentVersion+'.');
+                //console.log('.'+xhr.status+'.');
+                //console.log('.'+xhr.statusText+'.');
+                if (updateResponse.localeCompare(currentVersion) && updateResponse.localeCompare('') && updateResponse.localeCompare('404: Not Found\n')) {
+                    availableUpdate();
+                } else if (notifyUpdated) {
+                    noAvailableUpdate();
+                }
+            }
+        };
+        xhr.send();
+    }
+    
+    function action_checkUpdate() {
+        updaterNotification(true);
+    }
+    // ==============================================================================================================================================
 
     Component.onCompleted: {
         root.initTimezones();
@@ -106,9 +165,14 @@ Item {
         if (KCMShell.authorize("formats.desktop").length > 0) {
             plasmoid.setAction("formatskcm", i18n("Set Time Format..."));
         }
-
+        
         // Set the list of enabled plugins from config
         // to the manager
         PlasmaCalendar.EventPluginsManager.enabledPlugins = plasmoid.configuration.enabledCalendarPlugins;
+        
+        // Updater 3/3 ==============================================================================================================================
+        plasmoid.setAction("checkUpdate", i18n("Check for updates on github"), "view-grid");
+        if (checkUpdateStartup) {timerStartUpdater.start();}
+        // ==========================================================================================================================================
     }
 }

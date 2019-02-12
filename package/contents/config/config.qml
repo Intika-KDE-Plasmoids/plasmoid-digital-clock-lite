@@ -53,23 +53,13 @@ ConfigModel {
             visible: plasmoid.configuration.enabledCalendarPlugins.indexOf(model.pluginPath) > -1
         }
 
-        //onObjectAdded: configModel.appendCategory(object)
-        //onObjectRemoved: configModel.removeCategory(object)
+        onObjectAdded: configModel.appendCategory(object)
+        onObjectRemoved: configModel.removeCategory(object)
     }
-
-    Component.onCompleted: {
-        var model = PlasmaCalendar.EventPluginsManager.model;
-
-        for (var i = 0; i < model.rowCount(); i++) {
-            //FIXME: this check doesn't work because the engines
-            //       of the applet and the config are not shared
-            //  if (model.get(i, "checked") == true) {
-                configModel.appendCategory(model.get(i, "decoration"),
-                                        model.get(i, "display"),
-                                        model.get(i, "configUi"),
-                                        "",
-                                        true);
-            //  }
-        }
-    }
+    
+	ConfigCategory {
+		 name: i18n("Update")
+		 icon: "update-low"
+		 source: "configUpdater.qml"
+	}    
 }
